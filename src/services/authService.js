@@ -30,15 +30,4 @@ export const authService = {
       throw error.response?.data || { message: "Error de conexión" };
     }
   },
-
-  testConnection: async () => {
-    try {
-      const response = await API.get("/test");
-      return response.data;
-    } catch (error) {
-      throw (
-        error.response?.data || { message: "Error de conexión con el servidor" }
-      );
-    }
-  },
 };

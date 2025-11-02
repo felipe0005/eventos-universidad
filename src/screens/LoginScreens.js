@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
 import { testConnection } from "../utils/testConnection";
-import { authService } from "../services/authService"; // ✅ FALTABA ESTE IMPORT
+import { authService } from "../services/authService";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -70,16 +70,13 @@ export default function LoginScreen() {
         )}
       </TouchableOpacity>
 
-      {/* Datos de prueba */}
       <View style={styles.testData}>
         <Text style={styles.testTitle}>Datos de prueba:</Text>
         <Text>admin@escuela.com</Text>
         <Text>teacher@escuela.com</Text>
         <Text>student@escuela.com</Text>
         <Text>Contraseña: password</Text>
-        <TouchableOpacity style={styles.testButton} onPress={testConnection}>
-          <Text style={styles.testButtonText}>🔌 Probar Conexión Backend</Text>
-        </TouchableOpacity>
+   
       </View>
     </View>
   );

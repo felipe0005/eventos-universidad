@@ -6,13 +6,15 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  RefreshControl,
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
-import { eventsService } from "../services/eventsService"; // ✅ Import corregido
+import { eventsService } from "../services/eventsService";
 
 export default function EventsScreen({ navigation }) {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const { user, logout } = useAuth();
 
   useEffect(() => {
@@ -21,14 +23,24 @@ export default function EventsScreen({ navigation }) {
 
   const loadEvents = async () => {
     try {
+      setLoading(true);
       const response = await eventsService.getEvents();
       setEvents(response.events || []);
     } catch (error) {
-      Alert.alert("Error", "No se pudieron cargar los eventos");
+      Alert.alert(
+        "Error",
+        error.message || "No se pudieron cargar los eventos"
+      );
       console.log("Error loading events:", error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    loadEvents();
   };
 
   const handleLogout = () => {
@@ -53,31 +65,38 @@ export default function EventsScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Bienvenido, {user?.name}</Text>
-        <Text style={styles.role}>Rol: {user?.role}</Text>
-        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          <Text style={styles.logoutText}>Cerrar Sesión</Text>
-        </TouchableOpacity>
-      </View>
+        <Text style={styles.title}>Eventos Escolares</Text>
+        <Text style={styles.role}>Hola, {user?.name}</Text>
+      </View> 
 
       <FlatList
         data={events}
         keyExtractor={(item) => item.id?.toString() || Math.random().toString()}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.eventCard}
             onPress={() => navigation.navigate("EventDetails", { event: item })}
           >
             <Text style={styles.eventTitle}>{item.title}</Text>
-            <Text>📅 {new Date(item.date).toLocaleDateString()}</Text>
-            <Text>📍 {item.location}</Text>
-            <Text>👤 Creado por: {item.created_by_name}</Text>
+            <Text>{new Date(item.date).toLocaleDateString("es-ES")}</Text>
+            <Text>
+              {" "}
+              {new Date(item.date).toLocaleTimeString("es-ES", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </Text>
+            <Text>{item.location}</Text>
+            <Text>Creado por: {item.created_by_name}</Text>
           </TouchableOpacity>
         )}
         ListEmptyComponent={
           <View style={styles.empty}>
             <Text>No hay eventos disponibles</Text>
-            <Text>Usa los datos de prueba en el login</Text>
+            <Text>Pulsa el botón + para crear el primer evento</Text>
           </View>
         }
       />
@@ -85,7 +104,7 @@ export default function EventsScreen({ navigation }) {
       {(user?.role === "admin" || user?.role === "teacher") && (
         <TouchableOpacity
           style={styles.fab}
-          onPress={() => navigation.navigate("CreateEvent")}
+          onPress={() => navigation.navigate("CreateEvent", { event: null })}
         >
           <Text style={styles.fabText}>+</Text>
         </TouchableOpacity>

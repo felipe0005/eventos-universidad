@@ -1,14 +1,59 @@
+//imports necesarios para la funcionalidad de el manejo de pantallas
 import React from "react";
 import { View, Text } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useAuth } from "../context/AuthContext";
 
-// Importar pantallas
+// Importar pantallas de screens
 import LoginScreen from "../screens/LoginScreens";
 import EventsScreen from "../screens/EventScreens";
+import EventDetailsScreen from "../screens/EventDetailScreen";
+import EventCreateScreen from "../screens/EventCreateScreen";
+import ProfileScreen from "../screens/ProfileScreen";
 
 const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
+
+// Tab Navigator para las pantallas principales
+function MainTabs() {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        tabBarActiveTintColor: "#007AFF",
+        tabBarInactiveTintColor: "#8E8E93",
+        tabBarStyle: {
+          paddingBottom: 5,
+          height: 60,
+        },
+      }}
+    >
+      <Tab.Screen
+        name="EventsTab"
+        component={EventsScreen}
+        options={{
+          title: "Eventos",
+          tabBarIcon: ({ color, size }) => (
+            <Text style={{ color, fontSize: size }}>📅</Text>
+          ),
+          headerShown: false,
+        }}
+      />
+      <Tab.Screen
+        name="ProfileTab"
+        component={ProfileScreen}
+        options={{
+          title: "Perfil",
+          tabBarIcon: ({ color, size }) => (
+            <Text style={{ color, fontSize: size }}>👤</Text>
+          ),
+          headerShown: false,
+        }}
+      />
+    </Tab.Navigator>
+  );
+}
 
 export default function AppNavigator() {
   const { user, loading } = useAuth();
@@ -31,11 +76,23 @@ export default function AppNavigator() {
             options={{ headerShown: false }}
           />
         ) : (
-          <Stack.Screen
-            name="Events"
-            component={EventsScreen}
-            options={{ title: "Eventos Escolares" }}
-          />
+          <>
+            <Stack.Screen
+              name="Main"
+              component={MainTabs}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="EventDetails"
+              component={EventDetailsScreen}
+              options={{ title: "Detalles del Evento" }}
+            />
+            <Stack.Screen
+              name="CreateEvent"
+              component={EventCreateScreen}
+              options={{ title: "Crear Evento" }}
+            />
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>
