@@ -1,6 +1,6 @@
 //imports necesarios para la funcionalidad de el manejo de pantallas
 import React from "react";
-import { View, Text } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -8,6 +8,7 @@ import { useAuth } from "../context/AuthContext";
 
 // Importar pantallas de screens
 import LoginScreen from "../screens/LoginScreens";
+import RegisterScreen from "../screens/RegisterScreen";
 import EventsScreen from "../screens/EventScreens";
 import EventDetailsScreen from "../screens/EventDetailScreen";
 import EventCreateScreen from "../screens/EventCreateScreen";
@@ -66,22 +67,54 @@ export default function AppNavigator() {
     );
   }
 
-  //de esta forma hay una navegacion de pantallas
   return (
     <NavigationContainer>
       <Stack.Navigator>
         {!user ? (
-          <Stack.Screen
-            name="Login"
-            component={LoginScreen}
-            options={{ headerShown: false }}
-          />
-        ) : (
+          // 🔥 PANTALLAS PARA USUARIOS NO AUTENTICADOS
           <>
             <Stack.Screen
-              name="Main"
-              component={MainTabs}
-              options={{ headerShown: false }}
+              name="Login"
+              component={LoginScreen}
+              options={{
+                headerShown: false,
+                // Opcional: agregar botón de registro en header
+                headerRight: () => (
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate("Register")}
+                    style={{ marginRight: 15 }}
+                  >
+                    <Text style={{ color: "#007AFF", fontWeight: "bold" }}>
+                      Registrarse
+                    </Text>
+                  </TouchableOpacity>
+                ),
+              }}
+            />
+            <Stack.Screen
+              name="Register"
+              component={RegisterScreen}
+              options={{
+                title: "Registro de Estudiante",
+                headerBackTitle: "Volver",
+              }}
+            />
+          </>
+        ) : (
+          // Pantallas para usuarios autenticados
+          <>
+            <Stack.Screen
+              name="Events"
+              component={EventsScreen}
+              options={{
+                title: "Eventos Escolares",
+                headerBackVisible: false,
+              }}
+            />
+            <Stack.Screen
+              name="Profile"
+              component={ProfileScreen}
+              options={{ title: "Mi Perfil" }}
             />
             <Stack.Screen
               name="EventDetails"
@@ -92,6 +125,11 @@ export default function AppNavigator() {
               name="CreateEvent"
               component={EventCreateScreen}
               options={{ title: "Crear Evento" }}
+            />
+            <Stack.Screen
+              name="SavedEvents"
+              component={SavedEventsScreen}
+              options={{ title: "Mis Eventos Guardados" }}
             />
           </>
         )}
