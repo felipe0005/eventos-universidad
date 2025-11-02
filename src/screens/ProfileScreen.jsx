@@ -3,14 +3,13 @@ import {
   View,
   Text,
   ScrollView,
-  StyleSheet,
   TouchableOpacity,
   Alert,
   StatusBar,
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
 import { authService } from "../services/authService";
-import { styles } from "../styles/ProfileScreenStyle";
+import styles from "../styles/ProfileScreenStyle";
 
 export default function ProfileScreen({ navigation }) {
   const { user, logout } = useAuth();

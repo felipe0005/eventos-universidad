@@ -1,6 +1,6 @@
 //imports necesarios para la funcionalidad de el manejo de pantallas
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -28,6 +28,7 @@ function MainTabs() {
           paddingBottom: 5,
           height: 60,
         },
+        headerShown: false,
       }}
     >
       <Tab.Screen
@@ -38,7 +39,6 @@ function MainTabs() {
           tabBarIcon: ({ color, size }) => (
             <Text style={{ color, fontSize: size }}>📅</Text>
           ),
-          headerShown: false,
         }}
       />
       <Tab.Screen
@@ -49,7 +49,6 @@ function MainTabs() {
           tabBarIcon: ({ color, size }) => (
             <Text style={{ color, fontSize: size }}>👤</Text>
           ),
-          headerShown: false,
         }}
       />
     </Tab.Navigator>
@@ -71,24 +70,12 @@ export default function AppNavigator() {
     <NavigationContainer>
       <Stack.Navigator>
         {!user ? (
-          // 🔥 PANTALLAS PARA USUARIOS NO AUTENTICADOS
           <>
             <Stack.Screen
               name="Login"
               component={LoginScreen}
               options={{
                 headerShown: false,
-                // Opcional: agregar botón de registro en header
-                headerRight: () => (
-                  <TouchableOpacity
-                    onPress={() => navigation.navigate("Register")}
-                    style={{ marginRight: 15 }}
-                  >
-                    <Text style={{ color: "#007AFF", fontWeight: "bold" }}>
-                      Registrarse
-                    </Text>
-                  </TouchableOpacity>
-                ),
               }}
             />
             <Stack.Screen
@@ -96,40 +83,37 @@ export default function AppNavigator() {
               component={RegisterScreen}
               options={{
                 title: "Registro de Estudiante",
-                headerBackTitle: "Volver",
+                headerBackTitle: "Login", // Para iOS
               }}
             />
           </>
         ) : (
-          // Pantallas para usuarios autenticados
           <>
+            {/* Pantalla principal con tabs */}
             <Stack.Screen
-              name="Events"
-              component={EventsScreen}
+              name="MainTabs"
+              component={MainTabs}
               options={{
-                title: "Eventos Escolares",
-                headerBackVisible: false,
+                headerShown: false,
               }}
             />
-            <Stack.Screen
-              name="Profile"
-              component={ProfileScreen}
-              options={{ title: "Mi Perfil" }}
-            />
+
+            {/* Pantallas modales */}
             <Stack.Screen
               name="EventDetails"
               component={EventDetailsScreen}
-              options={{ title: "Detalles del Evento" }}
+              options={{
+                title: "Detalles del Evento",
+                presentation: "modal",
+              }}
             />
             <Stack.Screen
               name="CreateEvent"
               component={EventCreateScreen}
-              options={{ title: "Crear Evento" }}
-            />
-            <Stack.Screen
-              name="SavedEvents"
-              component={SavedEventsScreen}
-              options={{ title: "Mis Eventos Guardados" }}
+              options={{
+                title: "Crear Evento",
+                presentation: "modal",
+              }}
             />
           </>
         )}

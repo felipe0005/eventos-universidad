@@ -3,7 +3,6 @@ import {
   View,
   Text,
   ScrollView,
-  StyleSheet,
   TouchableOpacity,
   Alert,
   Linking,
@@ -11,7 +10,7 @@ import {
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
 import { eventsService } from "../services/eventsService";
-import { styles } from "../styles/EventDetailScreenStyle";
+import styles  from "../styles/EventDetailScreenStyle";
 
 export default function EventDetailsScreen({ route, navigation }) {
   const { event } = route.params;

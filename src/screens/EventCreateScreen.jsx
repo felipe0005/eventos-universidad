@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   Alert,
   ScrollView,
   ActivityIndicator,
@@ -14,7 +13,7 @@ import {
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
 import { eventsService } from "../services/eventsService";
-import { styles } from "../styles/EventCreateScreenStyle";
+import styles from "../styles/EventCreateScreenStyle";
 
 export default function EventCreateScreen({ route, navigation }) {
   const { event: existingEvent } = route.params || {};

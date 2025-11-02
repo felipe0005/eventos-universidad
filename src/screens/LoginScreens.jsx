@@ -5,7 +5,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   Alert,
   ActivityIndicator,
   Image,
@@ -16,10 +15,10 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { testConnection } from "../utils/testConnection";
 import { authService } from "../services/authService";
-import { styles } from "../styles/LoginScreenStyle";
+import styles from "../styles/LoginScreenStyle";
 
 //funcion principal
-export default function LoginScreen() {
+export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login, loading } = useAuth();
@@ -108,6 +107,14 @@ export default function LoginScreen() {
                 Ingresar a la Plataforma
               </Text>
             )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.registerLink}
+            onPress={() => navigation.navigate("Register")}
+          >
+            <Text style={styles.registerText}>
+              ¿No tienes cuenta? Regístrate aquí
+            </Text>
           </TouchableOpacity>
 
           <View style={styles.testData}>
