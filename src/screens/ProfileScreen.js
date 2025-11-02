@@ -6,8 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
-  Image,
-  Switch,
+  StatusBar,
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
 import { authService } from "../services/authService";
@@ -18,20 +17,24 @@ export default function ProfileScreen({ navigation }) {
   const [darkMode, setDarkMode] = useState(false);
 
   const handleLogout = () => {
-    Alert.alert("Cerrar Sesión", "¿Estás seguro de que quieres salir?", [
-      { text: "Cancelar", style: "cancel" },
-      {
-        text: "Salir",
-        onPress: logout,
-        style: "destructive",
-      },
-    ]);
+    Alert.alert(
+      "Cerrar Sesión",
+      "¿Estás seguro de que quieres salir de la aplicación?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Salir",
+          onPress: logout,
+          style: "destructive",
+        },
+      ]
+    );
   };
 
   const getRoleDisplayName = (role) => {
     const roles = {
       admin: "Administrador",
-      teacher: "Profesor",
+      teacher: "Docente",
       student: "Estudiante",
     };
     return roles[role] || role;
@@ -39,253 +42,360 @@ export default function ProfileScreen({ navigation }) {
 
   const getRoleColor = (role) => {
     const colors = {
-      admin: "#FF3B30",
-      teacher: "#007AFF",
-      student: "#4CD964",
+      admin: "#DC2626",
+      teacher: "#2563EB",
+      student: "#16A34A",
     };
-    return colors[role] || "#8E8E93";
+    return colors[role] || "#6B7280";
+  };
+
+  const getRoleGradient = (role) => {
+    const gradients = {
+      admin: ["#DC2626", "#B91C1C"],
+      teacher: ["#2563EB", "#1D4ED8"],
+      student: ["#16A34A", "#15803D"],
+    };
+    return gradients[role] || ["#6B7280", "#4B5563"];
   };
 
   const menuItems = [
     {
       title: "Mis Eventos",
+      subtitle: "Ver todos mis eventos",
       icon: "📅",
       onPress: () => navigation.navigate("Events"),
       show: true,
+      color: "#3B82F6",
     },
     {
       title: "Crear Evento",
+      subtitle: "Programar nuevo evento",
       icon: "➕",
       onPress: () => navigation.navigate("CreateEvent", { event: null }),
       show: user?.role === "admin" || user?.role === "teacher",
-    },
-    {
-      title: "Ayuda y Soporte",
-      icon: "❓",
-      onPress: () =>
-        Alert.alert("Ayuda", "Contacta con soporte: soporte@escuela.com"),
-      show: true,
-    },
-    {
-      title: "Acerca de",
-      icon: "ℹ️",
-      onPress: () =>
-        Alert.alert(
-          "Acerca de",
-          "Eventos Escolares v1.0\n\nAplicación desarrollada para la gestión de eventos escolares."
-        ),
-      show: true,
+      color: "#10B981",
     },
   ];
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Header con información del usuario */}
-      <View style={styles.header}>
-        <View style={styles.avatarContainer}>
-          <View
-            style={[
-              styles.avatar,
-              { backgroundColor: getRoleColor(user?.role) },
-            ]}
-          >
-            <Text style={styles.avatarText}>
-              {user?.name?.charAt(0)?.toUpperCase() || "U"}
-            </Text>
-          </View>
-          <View style={styles.roleBadge}>
-            <Text style={styles.roleBadgeText}>
-              {getRoleDisplayName(user?.role)}
-            </Text>
-          </View>
-        </View>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#1E40AF" />
 
-        <Text style={styles.userName}>{user?.name || "Usuario"}</Text>
-        <Text style={styles.userEmail}>
-          {user?.email || "email@ejemplo.com"}
-        </Text>
-
-        <View style={styles.statsContainer}>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>0</Text>
-            <Text style={styles.statLabel}>Eventos</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>0</Text>
-            <Text style={styles.statLabel}>Asistencias</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>0</Text>
-            <Text style={styles.statLabel}>Creados</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Menú de opciones */}
-      <View style={styles.menuSection}>
-        <Text style={styles.sectionTitle}>Opciones</Text>
-        {menuItems.map(
-          (item, index) =>
-            item.show && (
-              <TouchableOpacity
-                key={index}
-                style={styles.menuItem}
-                onPress={item.onPress}
-                disabled={!item.onPress}
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Header con información del usuario */}
+        <View style={styles.heroSection}>
+          <View style={styles.heroBackground} />
+          <View style={styles.heroContent}>
+            <View style={styles.avatarContainer}>
+              <View
+                style={[
+                  styles.avatar,
+                  { backgroundColor: getRoleColor(user?.role) },
+                ]}
               >
-                <View style={styles.menuItemLeft}>
-                  <Text style={styles.menuIcon}>{item.icon}</Text>
-                  <Text style={styles.menuText}>{item.title}</Text>
-                </View>
-                {item.component || <Text style={styles.menuArrow}>›</Text>}
-              </TouchableOpacity>
-            )
-        )}
-      </View>
+                <Text style={styles.avatarText}>
+                  {user?.name?.charAt(0)?.toUpperCase() || "U"}
+                </Text>
+              </View>
+              <View
+                style={[
+                  styles.roleBadge,
+                  { backgroundColor: getRoleColor(user?.role) },
+                ]}
+              >
+                <Text style={styles.roleBadgeText}>
+                  {getRoleDisplayName(user?.role)}
+                </Text>
+              </View>
+            </View>
 
-      {/* Botón de cerrar sesión */}
-      <View style={styles.logoutSection}>
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutButtonText}>🚪 Cerrar Sesión</Text>
-        </TouchableOpacity>
+            <Text style={styles.userName}>{user?.name || "Usuario"}</Text>
+            <Text style={styles.userEmail}>
+              {user?.email || "usuario@universidad.edu"}
+            </Text>
+          </View>
+        </View>
 
-        <Text style={styles.versionText}>Versión 1.0.0</Text>
-      </View>
-    </ScrollView>
+        {/* Menú de opciones */}
+        <View style={styles.menuSection}>
+          <Text style={styles.sectionTitle}>Opciones Principales</Text>
+          <View style={styles.menuGrid}>
+            {menuItems.map(
+              (item, index) =>
+                item.show && (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.menuCard}
+                    onPress={item.onPress}
+                  >
+                    <View
+                      style={[
+                        styles.menuIconContainer,
+                        { backgroundColor: item.color },
+                      ]}
+                    >
+                      <Text style={styles.menuIcon}>{item.icon}</Text>
+                    </View>
+                    <View style={styles.menuTextContainer}>
+                      <Text style={styles.menuTitle}>{item.title}</Text>
+                      <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
+                    </View>
+                    {item.component || (
+                      <View style={styles.menuArrowContainer}>
+                        <Text style={styles.menuArrow}>›</Text>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                )
+            )}
+          </View>
+        </View>
+
+        {/* Información de la app y logout */}
+        <View style={styles.footerSection}>
+          <View style={styles.appInfoCard}>
+            <Text style={styles.appInfoTitle}>Eventos Universitarios</Text>
+            <Text style={styles.appInfoDescription}>
+              Conectando a la comunidad universitaria a través de eventos y
+              actividades
+            </Text>
+          </View>
+
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.logoutButtonText}>Cerrar Sesión</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#F8FAFC",
   },
-  header: {
-    backgroundColor: "white",
-    padding: 20,
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 40,
+  },
+  heroSection: {
+    backgroundColor: "#1E40AF",
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    overflow: "hidden",
+  },
+  heroBackground: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "#1E40AF",
+  },
+  heroContent: {
+    paddingHorizontal: 24,
+    paddingTop: 60,
+    paddingBottom: 30,
     alignItems: "center",
-    marginBottom: 10,
   },
   avatarContainer: {
     alignItems: "center",
-    marginBottom: 15,
+    marginBottom: 20,
   },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   avatarText: {
     color: "white",
-    fontSize: 32,
+    fontSize: 36,
     fontWeight: "bold",
   },
   roleBadge: {
-    backgroundColor: "#007AFF",
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
   },
   roleBadgeText: {
     color: "white",
     fontSize: 12,
     fontWeight: "bold",
+    textTransform: "uppercase",
   },
   userName: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
-    color: "#333",
-    marginBottom: 5,
+    color: "white",
+    marginBottom: 4,
+    textAlign: "center",
   },
   userEmail: {
     fontSize: 16,
-    color: "#666",
-    marginBottom: 20,
+    color: "rgba(255, 255, 255, 0.8)",
+    marginBottom: 24,
+    textAlign: "center",
   },
   statsContainer: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: 20,
+    padding: 16,
     width: "100%",
-    paddingHorizontal: 20,
+    justifyContent: "space-around",
   },
   statItem: {
     alignItems: "center",
+    flex: 1,
   },
   statNumber: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
-    color: "#007AFF",
+    color: "white",
+    marginBottom: 4,
   },
   statLabel: {
     fontSize: 12,
-    color: "#666",
-    marginTop: 4,
+    color: "rgba(255, 255, 255, 0.8)",
+    textAlign: "center",
   },
   statDivider: {
     width: 1,
-    backgroundColor: "#e0e0e0",
-    height: "80%",
-    alignSelf: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    marginHorizontal: 8,
   },
   menuSection: {
-    backgroundColor: "white",
-    marginBottom: 10,
+    paddingHorizontal: 24,
+    paddingTop: 32,
+    paddingBottom: 16,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
-    color: "#333",
-    padding: 15,
-    paddingBottom: 10,
+    color: "#1E293B",
+    marginBottom: 20,
   },
-  menuItem: {
+  menuGrid: {
+    gap: 12,
+  },
+  menuCard: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    backgroundColor: "white",
+    padding: 16,
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: "#F1F5F9",
   },
-  menuItemLeft: {
-    flexDirection: "row",
+  menuIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    justifyContent: "center",
     alignItems: "center",
+    marginRight: 16,
   },
   menuIcon: {
     fontSize: 20,
-    marginRight: 15,
   },
-  menuText: {
+  menuTextContainer: {
+    flex: 1,
+  },
+  menuTitle: {
     fontSize: 16,
-    color: "#333",
+    fontWeight: "600",
+    color: "#1E293B",
+    marginBottom: 2,
+  },
+  menuSubtitle: {
+    fontSize: 12,
+    color: "#64748B",
+  },
+  menuArrowContainer: {
+    paddingLeft: 8,
   },
   menuArrow: {
     fontSize: 20,
-    color: "#999",
-  },
-  logoutSection: {
-    padding: 20,
-    alignItems: "center",
-  },
-  logoutButton: {
-    backgroundColor: "#FF3B30",
-    padding: 15,
-    borderRadius: 10,
-    width: "100%",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  logoutButtonText: {
-    color: "white",
-    fontSize: 16,
+    color: "#9CA3AF",
     fontWeight: "bold",
+  },
+  switchContainer: {
+    backgroundColor: "#F3F4F6",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  switchLabel: {
+    fontSize: 12,
+    color: "#6B7280",
+    fontWeight: "500",
+  },
+  footerSection: {
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    gap: 16,
+  },
+  appInfoCard: {
+    backgroundColor: "#EFF6FF",
+    padding: 20,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#DBEAFE",
+    alignItems: "center",
+  },
+  appInfoTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#1E40AF",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  appInfoDescription: {
+    fontSize: 14,
+    color: "#374151",
+    textAlign: "center",
+    lineHeight: 20,
+    marginBottom: 12,
   },
   versionText: {
     fontSize: 12,
-    color: "#999",
+    color: "#6B7280",
+    fontWeight: "500",
+  },
+  logoutButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#FEF2F2",
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#FECACA",
+    gap: 12,
   },
 });

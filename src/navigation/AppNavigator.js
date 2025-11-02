@@ -66,6 +66,7 @@ export default function AppNavigator() {
     );
   }
 
+  //de esta forma hay una navegacion de pantallas
   return (
     <NavigationContainer>
       <Stack.Navigator>

@@ -8,6 +8,9 @@ import {
   Alert,
   ScrollView,
   ActivityIndicator,
+  StatusBar,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
 import { eventsService } from "../services/eventsService";
@@ -21,13 +24,13 @@ export default function EventCreateScreen({ route, navigation }) {
     description: "",
     date: "",
     location: "",
+    type: "academico",
   });
   const [loading, setLoading] = useState(false);
   const [isEditing] = useState(!!existingEvent);
 
   useEffect(() => {
     if (existingEvent) {
-      // Formatear fecha para el input
       const eventDate = new Date(existingEvent.date);
       const formattedDate = eventDate.toISOString().slice(0, 16);
 
@@ -36,9 +39,19 @@ export default function EventCreateScreen({ route, navigation }) {
         description: existingEvent.description || "",
         date: formattedDate,
         location: existingEvent.location || "",
+        type: existingEvent.type || "academico",
       });
     }
-  }, [existingEvent]);
+
+    // Configurar header
+    navigation.setOptions({
+      title: isEditing ? "Editar Evento" : "Nuevo Evento",
+      headerStyle: {
+        backgroundColor: "#1E40AF",
+      },
+      headerTintColor: "white",
+    });
+  }, [existingEvent, isEditing, navigation]);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
@@ -49,17 +62,28 @@ export default function EventCreateScreen({ route, navigation }) {
 
   const validateForm = () => {
     if (!formData.title.trim()) {
-      Alert.alert("Error", "El título es requerido");
+      Alert.alert("Error", "Por favor ingresa un título para el evento");
       return false;
     }
     if (!formData.date) {
-      Alert.alert("Error", "La fecha es requerida");
+      Alert.alert(
+        "Error",
+        "Por favor selecciona una fecha y hora para el evento"
+      );
       return false;
     }
     if (!formData.location.trim()) {
-      Alert.alert("Error", "La ubicación es requerida");
+      Alert.alert("Error", "Por favor ingresa una ubicación para el evento");
       return false;
     }
+
+    // Validar que la fecha no sea en el pasado
+    const selectedDate = new Date(formData.date);
+    if (selectedDate < new Date()) {
+      Alert.alert("Error", "No puedes crear eventos en fechas pasadas");
+      return false;
+    }
+
     return true;
   };
 
@@ -70,14 +94,15 @@ export default function EventCreateScreen({ route, navigation }) {
     try {
       if (isEditing) {
         await eventsService.updateEvent(existingEvent.id, formData);
-        Alert.alert("Éxito", "Evento actualizado correctamente");
+        Alert.alert("¡Éxito!", "Evento actualizado correctamente");
       } else {
         await eventsService.createEvent(formData);
-        Alert.alert("Éxito", "Evento creado correctamente");
+        Alert.alert("¡Éxito!", "Evento creado correctamente");
       }
       navigation.goBack();
     } catch (error) {
       Alert.alert("Error", error.message || "No se pudo guardar el evento");
+      console.log("Error saving event:", error);
     } finally {
       setLoading(false);
     }
@@ -88,192 +113,331 @@ export default function EventCreateScreen({ route, navigation }) {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>
-          {isEditing ? "Editar Evento" : "Crear Nuevo Evento"}
-        </Text>
-        <Text style={styles.subtitle}>
-          {isEditing
-            ? "Modifica los detalles del evento"
-            : "Completa la información para crear un nuevo evento"}
-        </Text>
-      </View>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <StatusBar barStyle="light-content" backgroundColor="#1E40AF" />
 
-      <View style={styles.form}>
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Título del Evento *</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Ej: Feria de Ciencias 2024"
-            value={formData.title}
-            onChangeText={(text) => handleInputChange("title", text)}
-            maxLength={100}
-          />
-          <Text style={styles.charCount}>{formData.title.length}/100</Text>
-        </View>
-
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Descripción</Text>
-          <TextInput
-            style={[styles.input, styles.textArea]}
-            placeholder="Describe el evento, actividades, requisitos..."
-            value={formData.description}
-            onChangeText={(text) => handleInputChange("description", text)}
-            multiline
-            numberOfLines={4}
-            textAlignVertical="top"
-            maxLength={500}
-          />
-          <Text style={styles.charCount}>
-            {formData.description.length}/500
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerIcon}>
+            <Text style={styles.headerIconText}>{isEditing ? "✏️" : "🎉"}</Text>
+          </View>
+          <Text style={styles.title}>
+            {isEditing ? "Editar Evento" : "Crear Nuevo Evento"}
+          </Text>
+          <Text style={styles.subtitle}>
+            {isEditing
+              ? "Modifica la información del evento existente"
+              : "Completa los detalles para programar un nuevo evento universitario"}
           </Text>
         </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Fecha y Hora *</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="YYYY-MM-DDTHH:MM"
-            value={formData.date}
-            onChangeText={(text) => handleInputChange("date", text)}
-          />
-          <Text style={styles.helperText}>
-            Formato: AAAA-MM-DDTHH:MM (Ej: 2024-03-15T14:30)
-          </Text>
-        </View>
+        {/* Formulario */}
+        <View style={styles.form}>
+          {/* Título del Evento */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>
+              Título del Evento <Text style={styles.required}>*</Text>
+            </Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Ej: Feria de Ciencias 2024, Conferencia de Ingeniería..."
+              placeholderTextColor="#9CA3AF"
+              value={formData.title}
+              onChangeText={(text) => handleInputChange("title", text)}
+              maxLength={100}
+            />
+            <View style={styles.inputFooter}>
+              <Text style={styles.charCount}>{formData.title.length}/100</Text>
+            </View>
+          </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Ubicación *</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Ej: Gimnasio principal, Auditorio..."
-            value={formData.location}
-            onChangeText={(text) => handleInputChange("location", text)}
-            maxLength={100}
-          />
-          <Text style={styles.charCount}>{formData.location.length}/100</Text>
-        </View>
-
-        <View style={styles.requiredInfo}>
-          <Text style={styles.requiredText}>* Campos requeridos</Text>
-        </View>
-
-        <View style={styles.actions}>
-          <TouchableOpacity
-            style={[styles.cancelButton, loading && styles.buttonDisabled]}
-            onPress={() => navigation.goBack()}
-            disabled={loading}
-          >
-            <Text style={styles.cancelButtonText}>Cancelar</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.submitButton, loading && styles.buttonDisabled]}
-            onPress={handleSubmit}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="white" />
-            ) : (
-              <Text style={styles.submitButtonText}>
-                {isEditing ? "Actualizar Evento" : "Crear Evento"}
+          {/* Descripción */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Descripción</Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="Describe los detalles del evento, actividades planeadas, público objetivo, requisitos de participación..."
+              placeholderTextColor="#9CA3AF"
+              value={formData.description}
+              onChangeText={(text) => handleInputChange("description", text)}
+              multiline
+              numberOfLines={6}
+              textAlignVertical="top"
+              maxLength={500}
+            />
+            <View style={styles.inputFooter}>
+              <Text style={styles.charCount}>
+                {formData.description.length}/500
               </Text>
-            )}
-          </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Fecha y Hora */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>
+              Fecha y Hora del Evento <Text style={styles.required}>*</Text>
+            </Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Selecciona fecha y hora"
+              placeholderTextColor="#9CA3AF"
+              value={formData.date}
+              onChangeText={(text) => handleInputChange("date", text)}
+            />
+            <View style={styles.inputFooter}>
+              <Text style={styles.helperText}>
+                Formato: AAAA-MM-DDTHH:MM (Ej: 2024-12-25T14:30)
+              </Text>
+            </View>
+          </View>
+
+          {/* Ubicación */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>
+              Ubicación <Text style={styles.required}>*</Text>
+            </Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Ej: Auditorio principal, Gimnasio, Sala de conferencias..."
+              placeholderTextColor="#9CA3AF"
+              value={formData.location}
+              onChangeText={(text) => handleInputChange("location", text)}
+              maxLength={100}
+            />
+            <View style={styles.inputFooter}>
+              <Text style={styles.charCount}>
+                {formData.location.length}/100
+              </Text>
+            </View>
+          </View>
+
+          {/* Información de campos requeridos */}
+          <View style={styles.requiredInfo}>
+            <Text style={styles.requiredText}>
+              <Text style={styles.required}>*</Text> Campos obligatorios
+            </Text>
+          </View>
+
+          {/* Acciones */}
+          <View style={styles.actions}>
+            <TouchableOpacity
+              style={[styles.cancelButton, loading && styles.buttonDisabled]}
+              onPress={() => navigation.goBack()}
+              disabled={loading}
+            >
+              <Text style={styles.cancelButtonText}>Cancelar</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.submitButton,
+                (!formData.title ||
+                  !formData.date ||
+                  !formData.location ||
+                  loading) &&
+                  styles.submitButtonDisabled,
+              ]}
+              onPress={handleSubmit}
+              disabled={
+                !formData.title ||
+                !formData.date ||
+                !formData.location ||
+                loading
+              }
+            >
+              {loading ? (
+                <ActivityIndicator color="white" size="small" />
+              ) : (
+                <Text style={styles.submitButtonText}>
+                  {isEditing ? "Actualizar Evento" : "Crear Evento"}
+                </Text>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#F8FAFC",
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   header: {
     backgroundColor: "white",
-    padding: 20,
-    marginBottom: 10,
+    paddingHorizontal: 24,
+    paddingTop: 40,
+    paddingBottom: 30,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 5,
+    alignItems: "center",
+  },
+  headerIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#EFF6FF",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  headerIconText: {
+    fontSize: 24,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
-    color: "#333",
-    marginBottom: 5,
+    color: "#1E293B",
+    marginBottom: 8,
+    textAlign: "center",
   },
   subtitle: {
     fontSize: 16,
-    color: "#666",
+    color: "#64748B",
+    textAlign: "center",
+    lineHeight: 24,
   },
   form: {
-    padding: 15,
+    paddingHorizontal: 24,
+    paddingTop: 32,
+    paddingBottom: 40,
   },
   inputGroup: {
-    marginBottom: 20,
+    marginBottom: 24,
   },
   label: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#333",
+    color: "#374151",
     marginBottom: 8,
+  },
+  required: {
+    color: "#EF4444",
   },
   input: {
     backgroundColor: "white",
     borderWidth: 1,
-    borderColor: "#ddd",
-    padding: 12,
-    borderRadius: 8,
+    borderColor: "#E5E7EB",
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 12,
     fontSize: 16,
+    color: "#1F2937",
   },
   textArea: {
-    minHeight: 100,
+    minHeight: 120,
     textAlignVertical: "top",
+  },
+  inputFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 8,
   },
   charCount: {
     fontSize: 12,
-    color: "#888",
-    textAlign: "right",
-    marginTop: 4,
+    color: "#6B7280",
   },
   helperText: {
     fontSize: 12,
-    color: "#666",
-    marginTop: 4,
+    color: "#6B7280",
     fontStyle: "italic",
   },
+  typeSelector: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  typeButton: {
+    flex: 1,
+    backgroundColor: "white",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    alignItems: "center",
+  },
+  typeButtonActive: {
+    backgroundColor: "#EFF6FF",
+    borderColor: "#3B82F6",
+  },
+  typeButtonText: {
+    fontSize: 14,
+    color: "#6B7280",
+    fontWeight: "500",
+  },
+  typeButtonTextActive: {
+    color: "#1E40AF",
+  },
   requiredInfo: {
-    marginBottom: 20,
+    marginBottom: 24,
+    padding: 16,
+    backgroundColor: "#FEF2F2",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#FECACA",
   },
   requiredText: {
     fontSize: 14,
-    color: "#FF3B30",
-    fontStyle: "italic",
+    color: "#991B1B",
+    textAlign: "center",
   },
   actions: {
     flexDirection: "row",
-    gap: 10,
-    marginTop: 20,
+    gap: 12,
+    marginTop: 8,
   },
   cancelButton: {
     flex: 1,
-    backgroundColor: "#8E8E93",
-    padding: 15,
-    borderRadius: 10,
+    backgroundColor: "white",
+    paddingVertical: 16,
+    borderRadius: 12,
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
   },
   cancelButtonText: {
-    color: "white",
+    color: "#374151",
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "600",
   },
   submitButton: {
     flex: 2,
-    backgroundColor: "#007AFF",
-    padding: 15,
-    borderRadius: 10,
+    backgroundColor: "#3B82F6",
+    paddingVertical: 16,
+    borderRadius: 12,
     alignItems: "center",
+    shadowColor: "#3B82F6",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  submitButtonDisabled: {
+    backgroundColor: "#9CA3AF",
+    shadowOpacity: 0,
+    elevation: 0,
   },
   submitButtonText: {
     color: "white",
