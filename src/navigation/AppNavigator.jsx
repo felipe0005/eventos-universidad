@@ -37,7 +37,7 @@ function MainTabs() {
         options={{
           title: "Eventos",
           tabBarIcon: ({ color, size }) => (
-            <Text style={{ color, fontSize: size }}>📅</Text>
+            <Text style={{ color, fontSize: size }}></Text>
           ),
         }}
       />
@@ -47,7 +47,7 @@ function MainTabs() {
         options={{
           title: "Perfil",
           tabBarIcon: ({ color, size }) => (
-            <Text style={{ color, fontSize: size }}>👤</Text>
+            <Text style={{ color, fontSize: size }}></Text>
           ),
         }}
       />
