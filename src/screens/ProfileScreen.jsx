@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -8,13 +8,10 @@ import {
   StatusBar,
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
-import { authService } from "../services/authService";
 import styles from "../styles/ProfileScreenStyle";
 
 export default function ProfileScreen({ navigation }) {
   const { user, logout } = useAuth();
-  const [notifications, setNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
 
   const handleLogout = () => {
     Alert.alert(
@@ -49,34 +46,6 @@ export default function ProfileScreen({ navigation }) {
     return colors[role] || "#6B7280";
   };
 
-  const getRoleGradient = (role) => {
-    const gradients = {
-      admin: ["#DC2626", "#B91C1C"],
-      teacher: ["#2563EB", "#1D4ED8"],
-      student: ["#16A34A", "#15803D"],
-    };
-    return gradients[role] || ["#6B7280", "#4B5563"];
-  };
-
-  const menuItems = [
-    {
-      title: "Mis Eventos",
-      subtitle: "Ver todos mis eventos",
-      icon: "📅",
-      onPress: () => navigation.navigate("Events"),
-      show: true,
-      color: "#3B82F6",
-    },
-    {
-      title: "Crear Evento",
-      subtitle: "Programar nuevo evento",
-      icon: "➕",
-      onPress: () => navigation.navigate("CreateEvent", { event: null }),
-      show: user?.role === "admin" || user?.role === "teacher",
-      color: "#10B981",
-    },
-  ];
-
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#1E40AF" />
@@ -88,7 +57,6 @@ export default function ProfileScreen({ navigation }) {
       >
         {/* Header con información del usuario */}
         <View style={styles.heroSection}>
-          <View style={styles.heroBackground} />
           <View style={styles.heroContent}>
             <View style={styles.avatarContainer}>
               <View
@@ -120,51 +88,73 @@ export default function ProfileScreen({ navigation }) {
           </View>
         </View>
 
-        {/* Menú de opciones */}
-        <View style={styles.menuSection}>
-          <Text style={styles.sectionTitle}>Opciones Principales</Text>
-          <View style={styles.menuGrid}>
-            {menuItems.map(
-              (item, index) =>
-                item.show && (
-                  <TouchableOpacity
-                    key={index}
-                    style={styles.menuCard}
-                    onPress={item.onPress}
-                  >
-                    <View
-                      style={[
-                        styles.menuIconContainer,
-                        { backgroundColor: item.color },
-                      ]}
-                    >
-                      <Text style={styles.menuIcon}>{item.icon}</Text>
-                    </View>
-                    <View style={styles.menuTextContainer}>
-                      <Text style={styles.menuTitle}>{item.title}</Text>
-                      <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
-                    </View>
-                    {item.component || (
-                      <View style={styles.menuArrowContainer}>
-                        <Text style={styles.menuArrow}>›</Text>
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                )
-            )}
+        {/* Información de la cuenta */}
+        <View style={styles.infoSection}>
+          <Text style={styles.sectionTitle}>Información de la Cuenta</Text>
+          <View style={styles.infoCard}>
+            <View style={styles.infoRow}>
+              <View style={styles.infoContent}>
+                <Text style={styles.infoLabel}>ROL DE USUARIO</Text>
+                <Text style={styles.infoValue}>
+                  {getRoleDisplayName(user?.role)}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.divider} />
+
+            <View style={styles.infoRow}>
+              <View style={styles.infoContent}>
+                <Text style={styles.infoLabel}>ESTADO DE CUENTA</Text>
+                <Text style={[styles.infoValue, styles.statusActive]}>
+                  Activa
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.divider} />
+
+            <View style={styles.infoRow}>
+              <View style={styles.infoContent}>
+                <Text style={styles.infoLabel}>FECHA DE REGISTRO</Text>
+                <Text style={styles.infoValue}>
+                  {new Date().toLocaleDateString("es-ES", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </Text>
+              </View>
+            </View>
           </View>
         </View>
 
+        {/* Acciones rápidas para administradores/docentes */}
+        {(user?.role === "admin" || user?.role === "teacher") && (
+          <View style={styles.actionsSection}>
+            <Text style={styles.sectionTitle}>Acciones Rápidas</Text>
+            <View style={styles.actionsCard}>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() =>
+                  navigation.navigate("CreateEvent", { event: null })
+                }
+              >
+                <View style={styles.buttonContent}>
+                  <Text style={styles.actionButtonTitle}>
+                    Crear Nuevo Evento
+                  </Text>
+                  <Text style={styles.actionButtonSubtitle}>
+                    Programar un nuevo evento universitario
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
         {/* Información de la app y logout */}
         <View style={styles.footerSection}>
-          <View style={styles.appInfoCard}>
-            <Text style={styles.appInfoTitle}>Eventos Universitarios</Text>
-            <Text style={styles.appInfoDescription}>
-              Conectando a la comunidad universitaria a través de eventos y
-              actividades
-            </Text>
-          </View>
-
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <Text style={styles.logoutButtonText}>Cerrar Sesión</Text>
           </TouchableOpacity>

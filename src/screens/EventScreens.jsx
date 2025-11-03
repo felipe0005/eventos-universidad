@@ -4,10 +4,10 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
-  StyleSheet,
   Alert,
   RefreshControl,
   StatusBar,
+  ActivityIndicator,
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
 import { eventsService } from "../services/eventsService";
@@ -81,12 +81,27 @@ export default function EventsScreen({ navigation }) {
     };
   };
 
+  const getEventStatus = (eventDate) => {
+    const date = new Date(eventDate);
+    const now = new Date();
+    const timeDiff = date.getTime() - now.getTime();
+    const daysDiff = timeDiff / (1000 * 3600 * 24);
+
+    if (daysDiff < 0)
+      return { status: "past", label: "Finalizado", color: "#6B7280" };
+    if (daysDiff <= 1)
+      return { status: "urgent", label: "Próximamente", color: "#DC2626" };
+    if (daysDiff <= 7)
+      return { status: "upcoming", label: "Esta semana", color: "#D97706" };
+    return { status: "scheduled", label: "Programado", color: "#059669" };
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
         <View style={styles.loadingContent}>
           <Text style={styles.loadingText}>Cargando eventos...</Text>
-          <View style={styles.loadingSpinner} />
+          <ActivityIndicator size="large" color="#3B82F6" />
         </View>
       </View>
     );
@@ -121,7 +136,7 @@ export default function EventsScreen({ navigation }) {
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Eventos Universitarios</Text>
           <Text style={styles.sectionSubtitle}>
-            Próximos eventos y actividades
+            Próximos eventos y actividades académicas
           </Text>
         </View>
 
@@ -142,6 +157,8 @@ export default function EventsScreen({ navigation }) {
           contentContainerStyle={styles.listContent}
           renderItem={({ item }) => {
             const { date, time, day } = formatEventDate(item.date);
+            const status = getEventStatus(item.date);
+
             return (
               <TouchableOpacity
                 style={styles.eventCard}
@@ -149,52 +166,71 @@ export default function EventsScreen({ navigation }) {
                   navigation.navigate("EventDetails", { event: item })
                 }
               >
+                {/* Header de la tarjeta con estado */}
                 <View style={styles.eventHeader}>
-                  <Text style={styles.eventTitle}>{item.title}</Text>
+                  <View style={styles.eventTitleContainer}>
+                    <Text style={styles.eventTitle}>{item.title}</Text>
+                    <View
+                      style={[
+                        styles.statusBadge,
+                        { backgroundColor: `${status.color}15` },
+                      ]}
+                    >
+                      <Text
+                        style={[styles.statusText, { color: status.color }]}
+                      >
+                        {status.label}
+                      </Text>
+                    </View>
+                  </View>
                 </View>
 
+                {/* Línea divisora */}
+                <View style={styles.divider} />
+
+                {/* Detalles del evento */}
                 <View style={styles.eventDetails}>
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailIcon}>Dia:</Text>
-                    <Text style={styles.detailText}>
-                      {day}, {date}
+                  <View style={styles.detailSection}>
+                    <Text style={styles.detailLabel}>FECHA Y HORA</Text>
+                    <Text style={styles.detailValue}>{day}</Text>
+                    <Text style={styles.detailValue}>
+                      {date} • {time}
                     </Text>
                   </View>
 
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailIcon}>Hora:</Text>
-                    <Text style={styles.detailText}>{time}</Text>
+                  <View style={styles.detailSection}>
+                    <Text style={styles.detailLabel}>UBICACIÓN</Text>
+                    <Text style={styles.detailValue}>{item.location}</Text>
                   </View>
 
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailIcon}>Lugar:</Text>
-                    <Text style={styles.detailText}>{item.location}</Text>
-                  </View>
-
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailIcon}>Organizado por:</Text>
-                    <Text style={styles.detailText}>
+                  <View style={styles.detailSection}>
+                    <Text style={styles.detailLabel}>ORGANIZADOR</Text>
+                    <Text style={styles.detailValue}>
                       {item.created_by_name}
                     </Text>
                   </View>
                 </View>
 
-                <View style={styles.eventFooter}>
-                  <Text style={styles.eventDescription} numberOfLines={2}>
-                    {item.description || "Sin descripción disponible"}
-                  </Text>
-                </View>
+                {/* Descripción */}
+                {item.description && (
+                  <View style={styles.descriptionContainer}>
+                    <Text style={styles.descriptionLabel}>DESCRIPCIÓN</Text>
+                    <Text style={styles.descriptionText} numberOfLines={2}>
+                      {item.description}
+                    </Text>
+                  </View>
+                )}
               </TouchableOpacity>
             );
           }}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Text style={styles.emptyEmoji}>📅</Text>
+              <View style={styles.emptyIllustration} />
               <Text style={styles.emptyTitle}>No hay eventos programados</Text>
               <Text style={styles.emptyDescription}>
                 {user?.role === "admin" || user?.role === "teacher"
-                  ? "Presiona el botón + para crear el primer evento"
-                  : "Los eventos aparecerán aquí cuando sean creados"}
+                  ? "Comienza creando el primer evento para la comunidad universitaria"
+                  : "Los eventos aparecerán aquí cuando sean programados por los organizadores"}
               </Text>
             </View>
           }

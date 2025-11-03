@@ -5,12 +5,11 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
-  Linking,
   StatusBar,
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
 import { eventsService } from "../services/eventsService";
-import styles  from "../styles/EventDetailScreenStyle";
+import styles from "../styles/EventDetailScreenStyle";
 
 export default function EventDetailsScreen({ route, navigation }) {
   const { event } = route.params;
@@ -83,7 +82,23 @@ export default function EventDetailsScreen({ route, navigation }) {
     };
   };
 
+  const getEventStatus = (eventDate) => {
+    const date = new Date(eventDate);
+    const now = new Date();
+    const timeDiff = date.getTime() - now.getTime();
+    const daysDiff = timeDiff / (1000 * 3600 * 24);
+
+    if (daysDiff < 0)
+      return { status: "past", label: "EVENTO FINALIZADO", color: "#6B7280" };
+    if (daysDiff <= 1)
+      return { status: "urgent", label: "PRÓXIMAMENTE", color: "#DC2626" };
+    if (daysDiff <= 7)
+      return { status: "upcoming", label: "ESTA SEMANA", color: "#D97706" };
+    return { status: "scheduled", label: "PROGRAMADO", color: "#059669" };
+  };
+
   const eventDate = formatDate(event.date);
+  const status = getEventStatus(event.date);
 
   return (
     <View style={styles.container}>
@@ -93,24 +108,46 @@ export default function EventDetailsScreen({ route, navigation }) {
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header con imagen de fondo */}
+        {/* Header con información principal */}
         <View style={styles.heroSection}>
           <View style={styles.heroContent}>
+            <View
+              style={[
+                styles.statusBadge,
+                { backgroundColor: `${status.color}20` },
+              ]}
+            >
+              <Text style={[styles.statusText, { color: status.color }]}>
+                {status.label}
+              </Text>
+            </View>
             <Text style={styles.title}>{event.title}</Text>
+
             <View style={styles.heroDetails}>
-              <View style={styles.heroDetailItem}>
-                <Text style={styles.heroDetailIcon}>📅</Text>
-                <Text style={styles.heroDetailText}>
-                  {eventDate.day}, {eventDate.date}
-                </Text>
+              <View style={styles.detailRow}>
+                <View style={styles.detailIcon} />
+                <View style={styles.detailContent}>
+                  <Text style={styles.detailLabel}>FECHA</Text>
+                  <Text style={styles.detailValue}>
+                    {eventDate.day}, {eventDate.date}
+                  </Text>
+                </View>
               </View>
-              <View style={styles.heroDetailItem}>
-                <Text style={styles.heroDetailIcon}>🕒</Text>
-                <Text style={styles.heroDetailText}>{eventDate.time}</Text>
+
+              <View style={styles.detailRow}>
+                <View style={styles.detailIcon} />
+                <View style={styles.detailContent}>
+                  <Text style={styles.detailLabel}>HORA</Text>
+                  <Text style={styles.detailValue}>{eventDate.time}</Text>
+                </View>
               </View>
-              <View style={styles.heroDetailItem}>
-                <Text style={styles.heroDetailIcon}>📍</Text>
-                <Text style={styles.heroDetailText}>{event.location}</Text>
+
+              <View style={styles.detailRow}>
+                <View style={styles.detailIcon} />
+                <View style={styles.detailContent}>
+                  <Text style={styles.detailLabel}>UBICACIÓN</Text>
+                  <Text style={styles.detailValue}>{event.location}</Text>
+                </View>
               </View>
             </View>
           </View>
@@ -134,23 +171,19 @@ export default function EventDetailsScreen({ route, navigation }) {
             <Text style={styles.sectionTitle}>Información del Evento</Text>
             <View style={styles.infoCard}>
               <View style={styles.infoItem}>
-                <View style={styles.infoIconContainer}>
-                  <Text style={styles.infoIcon}>👤</Text>
-                </View>
                 <View style={styles.infoContent}>
-                  <Text style={styles.infoLabel}>Organizador</Text>
+                  <Text style={styles.infoLabel}>ORGANIZADOR</Text>
                   <Text style={styles.infoValue}>
-                    {event.created_by_name || "Administración"}
+                    {event.created_by_name || "Administración Universitaria"}
                   </Text>
                 </View>
               </View>
 
+              <View style={styles.divider} />
+
               <View style={styles.infoItem}>
-                <View style={styles.infoIconContainer}>
-                  <Text style={styles.infoIcon}>📝</Text>
-                </View>
                 <View style={styles.infoContent}>
-                  <Text style={styles.infoLabel}>Fecha de Creación</Text>
+                  <Text style={styles.infoLabel}>FECHA DE CREACIÓN</Text>
                   <Text style={styles.infoValue}>
                     {new Date(event.created_at).toLocaleDateString("es-ES", {
                       day: "numeric",
@@ -161,16 +194,15 @@ export default function EventDetailsScreen({ route, navigation }) {
                 </View>
               </View>
 
+              <View style={styles.divider} />
+
               <View style={styles.infoItem}>
-                <View style={styles.infoIconContainer}>
-                  <Text style={styles.infoIcon}>🎯</Text>
-                </View>
                 <View style={styles.infoContent}>
-                  <Text style={styles.infoLabel}>Tipo de Evento</Text>
+                  <Text style={styles.infoLabel}>CATEGORÍA</Text>
                   <Text style={styles.infoValue}>
                     {event.type === "academico"
                       ? "Evento Académico"
-                      : "Evento Social"}
+                      : "Evento Universitario"}
                   </Text>
                 </View>
               </View>
@@ -185,7 +217,7 @@ export default function EventDetailsScreen({ route, navigation }) {
                 style={styles.calendarButton}
                 onPress={handleAddToCalendar}
               >
-                <View style={styles.calendarButtonTextContainer}>
+                <View style={styles.buttonContent}>
                   <Text style={styles.calendarButtonTitle}>
                     Agregar a Calendario
                   </Text>
@@ -203,7 +235,7 @@ export default function EventDetailsScreen({ route, navigation }) {
                       navigation.navigate("CreateEvent", { event })
                     }
                   >
-                    <View style={styles.editButtonTextContainer}>
+                    <View style={styles.buttonContent}>
                       <Text style={styles.editButtonTitle}>Editar Evento</Text>
                       <Text style={styles.editButtonSubtitle}>
                         Modificar información del evento
@@ -215,7 +247,7 @@ export default function EventDetailsScreen({ route, navigation }) {
                     style={styles.deleteButton}
                     onPress={handleDeleteEvent}
                   >
-                    <View style={styles.deleteButtonTextContainer}>
+                    <View style={styles.buttonContent}>
                       <Text style={styles.deleteButtonTitle}>
                         Eliminar Evento
                       </Text>
@@ -229,7 +261,7 @@ export default function EventDetailsScreen({ route, navigation }) {
             </View>
           </View>
 
-          {/* Footer Informativo */}
+          {/* Información Adicional */}
           <View style={styles.footerSection}>
             <View style={styles.footerCard}>
               <Text style={styles.footerTitle}>Información Importante</Text>

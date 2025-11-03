@@ -126,17 +126,16 @@ export default function EventCreateScreen({ route, navigation }) {
       >
         {/* Header */}
         <View style={styles.header}>
-          <View style={styles.headerIcon}>
-            <Text style={styles.headerIconText}>{isEditing ? "✏️" : "🎉"}</Text>
+          <View style={styles.headerContent}>
+            <Text style={styles.title}>
+              {isEditing ? "Editar Evento" : "Crear Nuevo Evento"}
+            </Text>
+            <Text style={styles.subtitle}>
+              {isEditing
+                ? "Modifica la información del evento existente"
+                : "Completa los detalles para programar un nuevo evento universitario"}
+            </Text>
           </View>
-          <Text style={styles.title}>
-            {isEditing ? "Editar Evento" : "Crear Nuevo Evento"}
-          </Text>
-          <Text style={styles.subtitle}>
-            {isEditing
-              ? "Modifica la información del evento existente"
-              : "Completa los detalles para programar un nuevo evento universitario"}
-          </Text>
         </View>
 
         {/* Formulario */}
@@ -187,14 +186,14 @@ export default function EventCreateScreen({ route, navigation }) {
             </Text>
             <TextInput
               style={styles.input}
-              placeholder="Selecciona fecha y hora"
+              placeholder="AAAA-MM-DDTHH:MM (Ej: 2024-12-25T14:30)"
               placeholderTextColor="#9CA3AF"
               value={formData.date}
               onChangeText={(text) => handleInputChange("date", text)}
             />
             <View style={styles.inputFooter}>
               <Text style={styles.helperText}>
-                Formato: AAAA-MM-DDTHH:MM (Ej: 2024-12-25T14:30)
+                Selecciona una fecha futura para el evento
               </Text>
             </View>
           </View>
@@ -217,13 +216,6 @@ export default function EventCreateScreen({ route, navigation }) {
                 {formData.location.length}/100
               </Text>
             </View>
-          </View>
-
-          {/* Información de campos requeridos */}
-          <View style={styles.requiredInfo}>
-            <Text style={styles.requiredText}>
-              <Text style={styles.required}>*</Text> Campos obligatorios
-            </Text>
           </View>
 
           {/* Acciones */}
