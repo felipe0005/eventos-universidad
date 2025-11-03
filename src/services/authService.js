@@ -3,12 +3,12 @@ import API from "./api";
 export const authService = {
   login: async (email, password) => {
     try {
-      console.log("🚀 Enviando login...");
+      console.log(" Enviando login...");
       const response = await API.post("/login", { email, password });
-      console.log("✅ Login exitoso:", response.data);
+      console.log(" Login exitoso:", response.data);
       return response.data;
     } catch (error) {
-      console.log("❌ Error en login:", error);
+      console.log(" Error en login:", error);
       throw error.response?.data || { message: "Error de conexión" };
     }
   },

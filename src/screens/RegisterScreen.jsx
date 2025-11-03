@@ -11,7 +11,7 @@ import {
   Platform,
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
-import styles from "../styles/LoginScreenStyle"; // Usamos mismos estilos que login
+import styles from "../styles/RegisterScreenStyle";
 
 export default function RegisterScreen({ navigation }) {
   const [formData, setFormData] = useState({
@@ -62,7 +62,7 @@ export default function RegisterScreen({ navigation }) {
         email: formData.email,
       });
 
-      const response = await fetch("http://localhost:3000/api/register", {
+      const response = await fetch("http://192.168.1.88:3000/api/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -71,7 +71,7 @@ export default function RegisterScreen({ navigation }) {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          role: "student", // Siempre student para registro público
+          role: "student",
         }),
       });
 
@@ -109,7 +109,7 @@ export default function RegisterScreen({ navigation }) {
       ...prev,
       [field]: value,
     }));
-    // Limpiar error del campo cuando el usuario escribe
+
     if (errors[field]) {
       setErrors((prev) => ({
         ...prev,
