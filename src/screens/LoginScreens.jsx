@@ -117,12 +117,7 @@ export default function LoginScreen({ navigation }) {
             </Text>
           </TouchableOpacity>
 
-          <View style={styles.testData}>
-            <Text style={styles.noteText}>
-              * Los estudiantes deben registrarse. Profesores: cuentas
-              institucionales.
-            </Text>
-          </View>
+          <View style={styles.testData}></View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
