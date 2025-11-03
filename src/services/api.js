@@ -1,3 +1,5 @@
+//conexion entre el front y el back
+//imports necesarios para funcionar
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -9,7 +11,7 @@ const API = axios.create({
   },
 });
 
-// Interceptor para agregar token
+// Interceptor para agregar token lo busca en el asyncStorege a ver si lo tiene y lo agrega al headers
 API.interceptors.request.use(
   async (config) => {
     try {

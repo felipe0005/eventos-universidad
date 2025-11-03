@@ -1,5 +1,6 @@
 import API from "./api";
 
+//funciones principales tanto de login, de registro y perfil
 export const authService = {
   login: async (email, password) => {
     try {

@@ -1,15 +1,16 @@
 import API from "./api";
 
+//funciones principales de los eventos
 export const eventsService = {
   // Obtener todos los eventos
   getEvents: async () => {
     try {
-      console.log("📡 Obteniendo eventos...");
+      console.log(" Obteniendo eventos...");
       const response = await API.get("/events");
-      console.log("✅ Eventos obtenidos:", response.data);
+      console.log(" Eventos obtenidos:", response.data);
       return response.data;
     } catch (error) {
-      console.log("❌ Error obteniendo eventos:", error);
+      console.log(" Error obteniendo eventos:", error);
       throw error.response?.data || { message: "Error al obtener eventos" };
     }
   },
@@ -19,10 +20,10 @@ export const eventsService = {
     try {
       console.log("📡 Obteniendo evento:", id);
       const response = await API.get(`/events/${id}`);
-      console.log("✅ Evento obtenido:", response.data);
+      console.log(" Evento obtenido:", response.data);
       return response.data;
     } catch (error) {
-      console.log("❌ Error obteniendo evento:", error);
+      console.log(" Error obteniendo evento:", error);
       throw error.response?.data || { message: "Error al obtener evento" };
     }
   },
@@ -30,12 +31,12 @@ export const eventsService = {
   // Crear nuevo evento
   createEvent: async (eventData) => {
     try {
-      console.log("📡 Creando evento:", eventData);
+      console.log(" Creando evento:", eventData);
       const response = await API.post("/events", eventData);
-      console.log("✅ Evento creado:", response.data);
+      console.log(" Evento creado:", response.data);
       return response.data;
     } catch (error) {
-      console.log("❌ Error creando evento:", error);
+      console.log(" Error creando evento:", error);
       throw error.response?.data || { message: "Error al crear evento" };
     }
   },
@@ -43,12 +44,12 @@ export const eventsService = {
   // Actualizar evento
   updateEvent: async (id, eventData) => {
     try {
-      console.log("📡 Actualizando evento:", id, eventData);
+      console.log(" Actualizando evento:", id, eventData);
       const response = await API.put(`/events/${id}`, eventData);
-      console.log("✅ Evento actualizado:", response.data);
+      console.log(" Evento actualizado:", response.data);
       return response.data;
     } catch (error) {
-      console.log("❌ Error actualizando evento:", error);
+      console.log(" Error actualizando evento:", error);
       throw error.response?.data || { message: "Error al actualizar evento" };
     }
   },
@@ -56,12 +57,12 @@ export const eventsService = {
   // Eliminar evento
   deleteEvent: async (id) => {
     try {
-      console.log("📡 Eliminando evento:", id);
+      console.log(" Eliminando evento:", id);
       const response = await API.delete(`/events/${id}`);
-      console.log("✅ Evento eliminado:", response.data);
+      console.log(" Evento eliminado:", response.data);
       return response.data;
     } catch (error) {
-      console.log("❌ Error eliminando evento:", error);
+      console.log(" Error eliminando evento:", error);
       throw error.response?.data || { message: "Error al eliminar evento" };
     }
   },

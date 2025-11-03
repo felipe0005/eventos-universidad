@@ -1,10 +1,13 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
+//imports necesarios y creacion de del Contexto
+import { createContext, useState, useContext, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authService } from "../services/authService";
 
+//se crea el contenedor de datos compartidos
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  //estado global del usuario
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -38,15 +41,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  //funcion del login
   const login = async (email, password) => {
     try {
       setLoading(true);
       const response = await authService.login(email, password);
 
+      //guarda tanto el usuario como el token en el estado
       setUser(response.user);
       setToken(response.token);
 
-      // Guardar en AsyncStorage
       await AsyncStorage.setItem("token", response.token);
       await AsyncStorage.setItem("user", JSON.stringify(response.user));
 
@@ -61,13 +65,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  //funcion del cierre de sesion
   const logout = async () => {
+    //limpia el estado de usuario y token y se borra la persistencia
     setUser(null);
     setToken(null);
     await AsyncStorage.removeItem("token");
     await AsyncStorage.removeItem("user");
   };
-
+  //devuelve toda la info
   return (
     <AuthContext.Provider
       value={{

@@ -1,6 +1,6 @@
-//imports necesarios para la funcionalidad de el manejo de pantallas
+// En AppNavigator.jsx - AGREGAR ESTA IMPORTACIÓN
 import React from "react";
-import { View, Text } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -17,12 +17,12 @@ import ProfileScreen from "../screens/ProfileScreen";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// Tab Navigator para las pantallas principales
+// Tab Navigator para las pantallas principales (perfil,eventos,MisEventos)
 function MainTabs() {
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: "#007AFF",
+        tabBarActiveTintColor: "#3B82F6",
         tabBarInactiveTintColor: "#8E8E93",
         tabBarStyle: {
           paddingBottom: 5,
@@ -37,17 +37,18 @@ function MainTabs() {
         options={{
           title: "Eventos",
           tabBarIcon: ({ color, size }) => (
-            <Text style={{ color, fontSize: size }}></Text>
+            <Text style={{ color, fontSize: size }}>📅</Text>
           ),
         }}
       />
+
       <Tab.Screen
         name="ProfileTab"
         component={ProfileScreen}
         options={{
           title: "Perfil",
           tabBarIcon: ({ color, size }) => (
-            <Text style={{ color, fontSize: size }}></Text>
+            <Text style={{ color, fontSize: size }}>👤</Text>
           ),
         }}
       />
@@ -70,6 +71,7 @@ export default function AppNavigator() {
     <NavigationContainer>
       <Stack.Navigator>
         {!user ? (
+          // pantalla para los usuarios no registrados
           <>
             <Stack.Screen
               name="Login"
@@ -82,14 +84,13 @@ export default function AppNavigator() {
               name="Register"
               component={RegisterScreen}
               options={{
-                title: "Registro de Estudiante",
-                headerBackTitle: "Login", // Para iOS
+                headerShown: false,
               }}
             />
           </>
         ) : (
+          // pantalla para los usuarios registrados
           <>
-            {/* Pantalla principal con tabs */}
             <Stack.Screen
               name="MainTabs"
               component={MainTabs}
@@ -97,14 +98,11 @@ export default function AppNavigator() {
                 headerShown: false,
               }}
             />
-
-            {/* Pantallas modales */}
             <Stack.Screen
               name="EventDetails"
               component={EventDetailsScreen}
               options={{
                 title: "Detalles del Evento",
-                presentation: "modal",
               }}
             />
             <Stack.Screen
@@ -112,7 +110,6 @@ export default function AppNavigator() {
               component={EventCreateScreen}
               options={{
                 title: "Crear Evento",
-                presentation: "modal",
               }}
             />
           </>

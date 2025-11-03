@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+//imports necesarios 
+import { useState } from "react";
 import {
   View,
   Text,
@@ -90,6 +91,7 @@ export default function LoginScreen({ navigation }) {
 
   const isLoading = loading || authLoading;
 
+  //lo que se va a ver en pantalla
   return (
     <KeyboardAvoidingView
       style={styles.container}
