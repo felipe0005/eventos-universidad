@@ -22,28 +22,6 @@ export default StyleSheet.create({
     color: "#1E293B",
     marginBottom: 8,
   },
-  noteText: {
-    fontSize: 12,
-    color: "#666",
-    fontStyle: "italic",
-    marginTop: 8,
-  },
-  simpleRegister: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  simpleRegisterText: {
-    color: "#666",
-    fontSize: 14,
-  },
-  simpleRegisterLink: {
-    color: "#007AFF",
-    fontSize: 14,
-    fontWeight: "bold",
-  },
   subtitle: {
     fontSize: 16,
     textAlign: "center",
@@ -92,11 +70,25 @@ export default StyleSheet.create({
     fontSize: 16,
     color: "#1E293B",
   },
+  inputFocused: {
+    borderColor: "#3B82F6",
+    backgroundColor: "white",
+  },
+  inputError: {
+    borderColor: "#EF4444",
+  },
+  errorText: {
+    color: "#EF4444",
+    fontSize: 12,
+    marginTop: 6,
+    marginLeft: 4,
+  },
   loginButton: {
     backgroundColor: "#3B82F6",
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
+    marginTop: 8,
     shadowColor: "#3B82F6",
     shadowOffset: {
       width: 0,
@@ -116,23 +108,57 @@ export default StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
-  footer: {
+  registerLink: {
     alignItems: "center",
-    paddingTop: 24,
-    borderTopWidth: 1,
-    borderTopColor: "#E2E8F0",
+    marginTop: 24,
   },
-  footerText: {
-    fontSize: 12,
-    color: "#94A3B8",
+  registerText: {
+    fontSize: 14,
+    color: "#64748B",
   },
-  errorText: {
-    color: "red",
-    fontSize: 12,
+  registerLinkText: {
+    fontSize: 14,
+    color: "#3B82F6",
+    fontWeight: "600",
     marginTop: 4,
-    marginLeft: 4,
   },
-  inputContainer: {
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F8FAFC",
+  },
+  loadingText: {
+    fontSize: 16,
+    color: "#64748B",
+    marginTop: 16,
+  },
+  testData: {
+    marginTop: 20,
+    padding: 16,
+    backgroundColor: "#F0F9FF",
+    borderRadius: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: "#3B82F6",
+  },
+  testDataTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#0369A1",
     marginBottom: 8,
-  },  
+  },
+  testDataText: {
+    fontSize: 12,
+    color: "#0369A1",
+    lineHeight: 16,
+  },
+  forgotPassword: {
+    alignItems: "flex-end",
+    marginBottom: 20,
+  },
+  forgotPasswordText: {
+    fontSize: 14,
+    color: "#3B82F6",
+    fontWeight: "500",
+  },
 });
